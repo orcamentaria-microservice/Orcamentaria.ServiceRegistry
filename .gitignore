@@ -45,3 +45,5 @@ logs/
 
 # Optional: ESLint cache
 .eslintcache
+
+*.opem

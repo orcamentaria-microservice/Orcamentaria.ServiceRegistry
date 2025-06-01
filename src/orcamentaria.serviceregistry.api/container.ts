@@ -8,6 +8,7 @@ import EndpointValidator from "../orcamentaria.serviceregistry.application/valid
 import ServiceScheduler from "../orcamentaria.serviceregistry.application/schedulers/ServiceScheduler";
 import LogServiceService from "../orcamentaria.serviceregistry.application/services/LogServiceService";
 import LogServiceRepository from "../orcamentaria.serviceregistry.infrastructure/repositories/LogServiceRepository";
+import AuthMiddleware from "../orcamentaria.serviceregistry.infrastructure/midlewares/AuthMidleware";
 
 export async function setupContainer() {
   const container = createContainer();
@@ -22,6 +23,8 @@ export async function setupContainer() {
   container.register({
     mongoContext: asValue(mongoContext),
     db: asValue(db),
+    
+    authMiddleware: asClass(AuthMiddleware).scoped(),
     
     serviceRepository: asFunction(({ db }) => new ServiceRepository(db)).transient(),
     logServiceRepository: asFunction(({ db }) => new LogServiceRepository(db)).transient(),

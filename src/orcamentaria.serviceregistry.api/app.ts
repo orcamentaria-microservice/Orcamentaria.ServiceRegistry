@@ -4,6 +4,7 @@ import { setupContainer } from "./container";
 import createServiceRoutes from "./routes/ServiceRoute";
 import ServiceController from "./controllers/ServiceController";
 import ServiceScheduler from "../orcamentaria.serviceregistry.application/schedulers/ServiceScheduler";
+import AuthMiddleware from "../orcamentaria.serviceregistry.infrastructure/midlewares/AuthMidleware";
 
 export async function createApp() {
   const app = express();
@@ -13,7 +14,8 @@ export async function createApp() {
 
   const resolvedContainer = {
     serviceController: await container.resolve<ServiceController>("serviceController"),
-    serviceScheduler: container.resolve<ServiceScheduler>("serviceScheduler")
+    serviceScheduler: await container.resolve<ServiceScheduler>("serviceScheduler"),
+    authMiddleware: await container.resolve<AuthMiddleware>("authMiddleware"),
   };
 
   resolvedContainer.serviceScheduler.healthServiceValidate(process.env.MAX_LIFE_SERVICE as unknown as number || 90)

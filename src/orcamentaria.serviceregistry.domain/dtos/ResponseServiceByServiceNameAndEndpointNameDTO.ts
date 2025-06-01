@@ -17,17 +17,16 @@ class ResponseServiceByServiceNameAndEndpointNameDTO {
         baseUrl: string, 
         route: string,
         method: HttpMethodEnum,
-        state: StateEnum,
-        port?: number){
+        state: StateEnum){
             this.id = id;
             this.serviceName = serviceName;
             this.endpointName = endpointName;
-            this.url = this.urlMount(baseUrl, route, port);
+            this.url = this.urlMount(baseUrl, route);
             this.method = HttpMethodEnum[method].toString();
             this.state = { stateId: state, stateName: StateEnum[state].toString() }
     }
 
-    private urlMount (baseUrl: string, route: string, port?: number) : string {
+    private urlMount (baseUrl: string, route: string) : string {
 
         if(!route.match(/^\/.*/))
             route = `/${route}`;
@@ -35,11 +34,7 @@ class ResponseServiceByServiceNameAndEndpointNameDTO {
         if(!baseUrl.match(/\/$/))
             baseUrl = baseUrl.replace(/\/+$/, '');
 
-        if(!!port)
-            return `${baseUrl}:${port}${route}`;
-
         return `${baseUrl}${route}`;
-
     }
 }
 

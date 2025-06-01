@@ -10,7 +10,6 @@ class ServiceValidator {
         this.schema = object<ServiceModel>({
             name: string().required(),
             baseUrl: string().required(),
-            port: number().required(),
             state: mixed<StateEnum>()
                     .oneOf(Object.values(StateEnum).filter(v => typeof v === 'number') as StateEnum[])
                     .required(),

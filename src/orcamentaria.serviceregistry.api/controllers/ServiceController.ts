@@ -1,9 +1,9 @@
-import { Request, Response } from "express";
+import { Request, Response, response } from "express";
 import ServiceService from "../../orcamentaria.serviceregistry.application/services/ServiceService";
 
 class ServiceController {
 
-    private service: ServiceService;
+  private service: ServiceService;
 
   constructor(serviceService: ServiceService) {
     this.service = serviceService;
@@ -11,22 +11,23 @@ class ServiceController {
 
   getServiceByServiceNameAndEndpointName = async (req: Request, res: Response) => {
     const result = await this.service.getServiceByServiceNameAndEndpointName(req);
-    res.status(result.status).json(result);
+    res.status(200).json(result);
   };
 
   getServiceByServiceName = async (req: Request, res: Response) => {
     const result = await this.service.getServiceByServiceName(req);
-    res.status(result.status).json(result);
+    res.status(200).json(result);
   };
 
   createService = async (req: Request, res: Response) => {
+    var t = req.headers["teste"];
     const result = await this.service.createService(req.body);
-    res.status(result.status).json(result);
+    res.status(200).json(result);
   };
 
   heartbeat = async (req: Request, res: Response) => {
     const result = await this.service.heartbeat(req);
-    res.status(result.status).json(result);
+    res.status(200).json(result);
   };
 }
 

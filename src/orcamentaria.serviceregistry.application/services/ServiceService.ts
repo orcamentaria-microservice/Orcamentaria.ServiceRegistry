@@ -40,7 +40,7 @@ class ServiceService {
         const service = await this._repository.getServiceByName(req.params.serviceName);
 
         if(!service)
-            return new ResponseModel({}, ResponseErrorEnum.NotFound, "Serviço não encontrado.");
+            return new ResponseModel({}, "Serviço não encontrado.", ResponseErrorEnum.NotFound);
 
         return new ResponseModel(
             new ResponseServiceByServiceNameDTO(
@@ -48,8 +48,7 @@ class ServiceService {
                 service.name, 
                 service.baseUrl,
                 service.state,
-                service.endpoints,
-                service.port
+                service.endpoints
             )
             );
     }
@@ -58,12 +57,12 @@ class ServiceService {
         const service = await this._repository.getServiceByName(req.params.serviceName);
 
         if(!service)
-            return new ResponseModel({}, ResponseErrorEnum.NotFound, "Serviço não encontrado.");
+            return new ResponseModel({}, "Serviço não encontrado.", ResponseErrorEnum.NotFound);
 
         const endpoint = service.endpoints.filter(i => i.name == req.params.endpointName)[0];
 
         if(!endpoint)
-            return new ResponseModel({}, ResponseErrorEnum.NotFound, "Endpoint não encontrado.");
+            return new ResponseModel({}, "Endpoint não encontrado.", ResponseErrorEnum.NotFound);
 
         return new ResponseModel(
             new ResponseServiceByServiceNameAndEndpointNameDTO(
@@ -73,8 +72,7 @@ class ServiceService {
                 service.baseUrl,
                 endpoint.route,
                 endpoint.method,
-                service.state,
-                service.port)
+                service.state)
             );
     }
 
@@ -85,16 +83,16 @@ class ServiceService {
             dto.endpoints.map(i => new EndpointModel(
                 i.name, 
                 HttpMethodEnum[i.method], 
-                i.route)), dayjs().toDate(), dayjs().toDate(), dto.port
+                i.route)), dayjs().toDate(), dayjs().toDate()
         );
 
         const messageErrorService = await this._validator.validateBeforeInsert(entity);
         if(!!messageErrorService)
-            return new ResponseModel({}, ResponseErrorEnum.ValidationFailed, messageErrorService);
+            return new ResponseModel({}, messageErrorService, ResponseErrorEnum.ValidationFailed);
         
         const messageErrorEndpoint = await this._validatorEndpoint.validateBeforeInsert(entity.endpoints);
         if(messageErrorEndpoint)
-            return new ResponseModel({}, ResponseErrorEnum.ValidationFailed, messageErrorEndpoint);
+            return new ResponseModel({}, messageErrorEndpoint, ResponseErrorEnum.ValidationFailed);
 
         try {
             const exists = await this._repository.getServiceByName(dto.name);
@@ -109,7 +107,7 @@ class ServiceService {
             this._logServiceService.createLog(new LogServiceModel(result.insertedId, entity.name, LogTypeEnum.CREATED, {}, entity));
             return new ResponseModel(result.insertedId)
         } catch (error) {
-            return new ResponseModel(error, ResponseErrorEnum.InternalError);
+            return new ResponseModel(error, "", ResponseErrorEnum.InternalError);
         }
     }
 
@@ -118,21 +116,21 @@ class ServiceService {
             await this._repository.updateExistsService(model, id);
             return new ResponseModel(id);
         } catch (error) {
-            return new ResponseModel(error, ResponseErrorEnum.InternalError);
+            return new ResponseModel(error, "", ResponseErrorEnum.InternalError);
         }
     }
 
     async heartbeat(req: Request) : Promise<ResponseModel> {
         try {
-            const result = await this._repository.updateHeartbeat(req.params.name);
+            const result = await this._repository.updateHeartbeat(req.params.serviceName);
 
             if(result.modifiedCount === 0)
-                return new ResponseModel({}, ResponseErrorEnum.NotFound, "Serviço não encontrado.");
+                return new ResponseModel({}, "", ResponseErrorEnum.NotFound);
 
             return new ResponseModel();
         } catch (error) {
             console.log(error)
-            return new ResponseModel(error, ResponseErrorEnum.InternalError);
+            return new ResponseModel(error, "", ResponseErrorEnum.InternalError);
         }
     }
 }

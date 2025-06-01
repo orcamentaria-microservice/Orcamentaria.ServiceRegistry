@@ -7,7 +7,6 @@ class ServiceModel {
     _id?: ObjectId;
     name: string;
     baseUrl: string;
-    port?: number;
     state: StateEnum
     endpoints: EndpointModel[]
     createAt: Date;
@@ -19,11 +18,9 @@ class ServiceModel {
       state: StateEnum, 
       endpoints: EndpointModel[], 
       createAt: Date,
-      lastHeartbeat: Date,
-      port?: number) {
+      lastHeartbeat: Date) {
         this.name = name;
         this.baseUrl = baseUrl;
-        this.port = port;
         this.state = state;
         this.endpoints = endpoints;
         this.createAt = createAt;

@@ -32,7 +32,6 @@ class ServiceRepository {
                 { 
                     lastHeartbeat: dayjs().toDate(), 
                     baseUrl: service.baseUrl,
-                    port: service.port,
                     endpoints: service.endpoints,
                     state: StateEnum.UP,
                 } 

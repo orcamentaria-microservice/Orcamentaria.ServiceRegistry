@@ -10,7 +10,7 @@ interface createServiceRoutesProps {
 export default function createServiceRoutes({ serviceController, authMiddleware } : createServiceRoutesProps) {
     const router = Router();
 
-    router.get("/:serviceName/:endpointName", authMiddleware.validateToken, serviceController.getServiceByServiceNameAndEndpointName);
+    router.get("/:serviceName/:endpointName", serviceController.getServiceByServiceNameAndEndpointName);
     router.get("/:serviceName", authMiddleware.validateToken, serviceController.getServiceByServiceName);
     router.post("/register", authMiddleware.validateToken, serviceController.registerService);
     router.put("/heartbeat", authMiddleware.validateToken, serviceController.heartbeat);

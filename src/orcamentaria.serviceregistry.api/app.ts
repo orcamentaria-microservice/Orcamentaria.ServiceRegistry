@@ -20,7 +20,7 @@ export async function createApp() {
 
   resolvedContainer.serviceScheduler.healthServiceValidate(process.env.MAX_LIFE_SERVICE as unknown as number || 90)
 
-  app.use("/service", createServiceRoutes(resolvedContainer));
+  app.use("/v1/service", createServiceRoutes(resolvedContainer));
 
   return app;
 }

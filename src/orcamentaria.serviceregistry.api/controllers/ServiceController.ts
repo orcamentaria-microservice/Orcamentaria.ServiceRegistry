@@ -19,8 +19,8 @@ class ServiceController {
     res.status(200).json(result);
   };
 
-  createService = async (req: Request, res: Response) => {
-    var t = req.headers["teste"];
+  registerService = async (req: Request, res: Response) => {
+    console.log("chegou hein")
     const result = await this.service.createService(req.body);
     res.status(200).json(result);
   };

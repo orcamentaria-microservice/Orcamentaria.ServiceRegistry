@@ -9,7 +9,6 @@ class AuthMiddleware {
 
     validateToken(req: Request, res: Response, next: NextFunction)  {
         const token = req.headers["authorization"];
-
         if(!token)
             res.status(ResponseErrorEnum.AccessDenied).send(res.send(new ResponseModel({}, "", ResponseErrorEnum.AccessDenied)));
 

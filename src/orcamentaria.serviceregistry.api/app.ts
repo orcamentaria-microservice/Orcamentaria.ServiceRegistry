@@ -18,7 +18,8 @@ export async function createApp() {
     authMiddleware: await container.resolve<AuthMiddleware>("authMiddleware"),
   };
 
-  resolvedContainer.serviceScheduler.healthServiceValidate(process.env.MAX_LIFE_SERVICE as unknown as number || 90)
+  resolvedContainer.serviceScheduler.healthServiceValidate(process.env.MAX_LIFE_TIME as unknown as number || 1.5);
+  resolvedContainer.serviceScheduler.removeServices(process.env.BURIAL_TIME as unknown as number || 720);
 
   app.use("/v1/service", createServiceRoutes(resolvedContainer));
 

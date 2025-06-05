@@ -4,7 +4,7 @@ import ServiceModel from "../../orcamentaria.serviceregistry.domain/models/Servi
 import ServiceValidator from "../validators/ServiceValidator";
 import CreateServiceDTO from "../../orcamentaria.serviceregistry.domain/dtos/CreateServiceDTO";
 import EndpointModel from "../../orcamentaria.serviceregistry.domain/models/EndpointModel";
-import ResponseServiceByServiceNameAndEndpointNameDTO from "../../orcamentaria.serviceregistry.domain/dtos/ResponseServiceByServiceNameAndEndpointNameDTO";
+import ResponseServiceDTO from "../../orcamentaria.serviceregistry.domain/dtos/ResponseServiceDTO";
 import { ObjectId } from "mongodb";
 import HttpMethodEnum from "../../orcamentaria.serviceregistry.domain/enums/HttpMethodEnum";
 import EndpointValidator from "../validators/EndpointValidator";
@@ -15,7 +15,6 @@ import dayjs from "dayjs";
 import LogServiceService from "./LogServiceService";
 import LogServiceModel from "../../orcamentaria.serviceregistry.domain/models/LogServiceModel";
 import LogTypeEnum from "../../orcamentaria.serviceregistry.domain/enums/LogTypeEnum";
-import ResponseServiceByServiceNameDTO from "../../orcamentaria.serviceregistry.domain/dtos/ResponseServiceByServiceNameDTO";
 
 class ServiceService {
 
@@ -37,49 +36,62 @@ class ServiceService {
     }
 
     async getServiceByServiceName(req: Request) : Promise<ResponseModel>  {
-        const service = await this._repository.getServiceByName(req.params.serviceName);
+        const cursor = await this._repository.getServicesByName(req.params.serviceName);
 
-        if(!service)
-            return new ResponseModel({}, "Serviço não encontrado.", ResponseErrorEnum.NotFound);
+        if(!cursor)
+            return new ResponseModel(null, "Serviço não encontrado.", ResponseErrorEnum.NotFound);
+
+        const services = await cursor.toArray();
+
+        if (services.length === 0)
+            return new ResponseModel(null, "Serviço não encontrado.", ResponseErrorEnum.NotFound);
 
         return new ResponseModel(
-            new ResponseServiceByServiceNameDTO(
-                service._id,
-                service.name, 
-                service.baseUrl,
-                service.state,
-                service.endpoints
-            )
-            );
+            services.map((service: ServiceModel) => {
+                return new ResponseServiceDTO(
+                    service._id!,
+                    service.order,
+                    service.name, 
+                    service.baseUrl,
+                    service.state,
+                    service.endpoints
+                )
+            }));
     }
 
     async getServiceByServiceNameAndEndpointName(req: Request) : Promise<ResponseModel>  {
-        const service = await this._repository.getServiceByName(req.params.serviceName);
+        const cursor = await this._repository.getServicesByName(req.params.serviceName);
 
-        if(!service)
-            return new ResponseModel({}, "Serviço não encontrado.", ResponseErrorEnum.NotFound);
+        if(!cursor)
+            return new ResponseModel(null, "Serviço não encontrado.", ResponseErrorEnum.NotFound);
 
-        const endpoint = service.endpoints.filter(i => i.name == req.params.endpointName)[0];
+        const services = await cursor.toArray();
+
+        if (services.length === 0)
+            return new ResponseModel(null, "Serviço não encontrado.", ResponseErrorEnum.NotFound);
+
+        const endpoint = services[0].endpoints.filter((i: EndpointModel) => i.name == req.params.endpointName)[0];
 
         if(!endpoint)
-            return new ResponseModel({}, "Endpoint não encontrado.", ResponseErrorEnum.NotFound);
+            return new ResponseModel(null, "Endpoint não encontrado.", ResponseErrorEnum.NotFound);
 
         return new ResponseModel(
-            new ResponseServiceByServiceNameAndEndpointNameDTO(
-                service._id,
-                service.name, 
-                endpoint.name, 
-                service.baseUrl,
-                endpoint.route,
-                endpoint.method,
-                service.state)
-            );
+            services.map((service: ServiceModel) => {
+                return new ResponseServiceDTO(
+                    service._id!,
+                    service.order,
+                    service.name, 
+                    service.baseUrl,
+                    service.state,
+                    [endpoint]
+                )
+            }));
     }
 
     async createService(dto: CreateServiceDTO) : Promise<ResponseModel> {
 
         var entity = new ServiceModel(
-            dto.name, dto.baseUrl, StateEnum.STARTING, 
+            dto.name, 1, dto.baseUrl, StateEnum.STARTING, 
             dto.endpoints.map(i => new EndpointModel(
                 i.name, 
                 HttpMethodEnum[i.method], 
@@ -88,19 +100,26 @@ class ServiceService {
 
         const messageErrorService = await this._validator.validateBeforeInsert(entity);
         if(!!messageErrorService)
-            return new ResponseModel({}, messageErrorService, ResponseErrorEnum.ValidationFailed);
+            return new ResponseModel(null, messageErrorService, ResponseErrorEnum.ValidationFailed);
         
         const messageErrorEndpoint = await this._validatorEndpoint.validateBeforeInsert(entity.endpoints);
         if(messageErrorEndpoint)
-            return new ResponseModel({}, messageErrorEndpoint, ResponseErrorEnum.ValidationFailed);
+            return new ResponseModel(null, messageErrorEndpoint, ResponseErrorEnum.ValidationFailed);
 
         try {
-            const exists = await this._repository.getServiceByName(dto.name);
-    
+            const exists = await this._repository.getServiceByNameAndBaseUrl(dto.name, dto.baseUrl);
+
             if(exists) {
                 await this.updateExistsService(entity, exists._id);
-                this._logServiceService.createLog(new LogServiceModel(exists._id, exists.name, LogTypeEnum.UPDATED, exists, entity));
+                this._logServiceService.createLog(new LogServiceModel(exists._id,  exists.name, LogTypeEnum.UPDATED, exists, entity));
                 return new ResponseModel(exists._id);
+            }
+
+            const cursor = await this._repository.getServicesByName(dto.name);
+
+            if(cursor) {
+                var count = (await cursor.toArray()).length + 1;
+                entity.order = count;
             }
             
             var result = await this._repository.createService(entity);
@@ -122,10 +141,10 @@ class ServiceService {
 
     async heartbeat(req: Request) : Promise<ResponseModel> {
         try {
-            const result = await this._repository.updateHeartbeat(req.params.serviceName);
+            const result = await this._repository.updateHeartbeat(req.params.serviceId);
 
             if(result.modifiedCount === 0)
-                return new ResponseModel({}, "", ResponseErrorEnum.NotFound);
+                return new ResponseModel(null, "Serviço não encontrado.", ResponseErrorEnum.NotFound);
 
             return new ResponseModel();
         } catch (error) {

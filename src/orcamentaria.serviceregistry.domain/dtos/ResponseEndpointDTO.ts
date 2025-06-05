@@ -1,6 +1,6 @@
 import HttpMethodEnum from "../enums/HttpMethodEnum";
 
-class ResponseEndpointByServiceNameDTO {
+class ResponseEndpointDTO {
     name: string;
     method: string;
     route: string;
@@ -12,4 +12,4 @@ class ResponseEndpointByServiceNameDTO {
     }
 }
 
-export default ResponseEndpointByServiceNameDTO;
+export default ResponseEndpointDTO;

@@ -20,7 +20,6 @@ class ServiceController {
   };
 
   registerService = async (req: Request, res: Response) => {
-    console.log("chegou hein")
     const result = await this.service.createService(req.body);
     res.status(200).json(result);
   };

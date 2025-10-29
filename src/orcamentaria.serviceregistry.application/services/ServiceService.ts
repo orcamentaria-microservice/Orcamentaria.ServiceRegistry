@@ -1,17 +1,17 @@
+import dayjs from "dayjs";
 import { Request } from "express";
+import { ObjectId } from "mongodb";
 import ServiceRepository from "../../orcamentaria.serviceregistry.infrastructure/repositories/ServiceRepository";
 import ServiceModel from "../../orcamentaria.serviceregistry.domain/models/ServiceModel";
 import ServiceValidator from "../validators/ServiceValidator";
 import CreateServiceDTO from "../../orcamentaria.serviceregistry.domain/dtos/CreateServiceDTO";
 import EndpointModel from "../../orcamentaria.serviceregistry.domain/models/EndpointModel";
 import ResponseServiceDTO from "../../orcamentaria.serviceregistry.domain/dtos/ResponseServiceDTO";
-import { ObjectId } from "mongodb";
 import HttpMethodEnum from "../../orcamentaria.serviceregistry.domain/enums/HttpMethodEnum";
 import EndpointValidator from "../validators/EndpointValidator";
 import ResponseModel from "../../orcamentaria.serviceregistry.domain/models/ResponseModel";
 import ResponseErrorEnum from "../../orcamentaria.serviceregistry.domain/enums/ResponseErrorEnum";
 import StateEnum from "../../orcamentaria.serviceregistry.domain/enums/StateEnum";
-import dayjs from "dayjs";
 import LogServiceService from "./LogServiceService";
 import LogServiceModel from "../../orcamentaria.serviceregistry.domain/models/LogServiceModel";
 import LogTypeEnum from "../../orcamentaria.serviceregistry.domain/enums/LogTypeEnum";
@@ -75,7 +75,7 @@ class ServiceService {
         if(!endpoint)
             return new ResponseModel(null, "Endpoint não encontrado.", ResponseErrorEnum.NotFound);
 
-        return new ResponseModel(
+        var t = new ResponseModel(
             services.map((service: ServiceModel) => {
                 return new ResponseServiceDTO(
                     service._id!,
@@ -86,6 +86,8 @@ class ServiceService {
                     [endpoint]
                 )
             }));
+
+        return t;
     }
 
     async createService(dto: CreateServiceDTO) : Promise<ResponseModel> {
@@ -102,9 +104,11 @@ class ServiceService {
         if(!!messageErrorService)
             return new ResponseModel(null, messageErrorService, ResponseErrorEnum.ValidationFailed);
         
-        const messageErrorEndpoint = await this._validatorEndpoint.validateBeforeInsert(entity.endpoints);
-        if(messageErrorEndpoint)
-            return new ResponseModel(null, messageErrorEndpoint, ResponseErrorEnum.ValidationFailed);
+        entity.endpoints.forEach(async endpoint => {
+            const messageErrorEndpoint = await this._validatorEndpoint.validateBeforeInsert(endpoint);
+            if(messageErrorEndpoint)
+                return new ResponseModel(null, messageErrorEndpoint, ResponseErrorEnum.ValidationFailed);
+        })
 
         try {
             const exists = await this._repository.getServiceByNameAndBaseUrl(dto.name, dto.baseUrl);
@@ -139,9 +143,9 @@ class ServiceService {
         }
     }
 
-    async heartbeat(req: Request) : Promise<ResponseModel> {
+    async heartbeat(serviceId: string) : Promise<ResponseModel> {
         try {
-            const result = await this._repository.updateHeartbeat(req.params.serviceId);
+            const result = await this._repository.updateHeartbeat(serviceId);
 
             if(result.modifiedCount === 0)
                 return new ResponseModel(null, "Serviço não encontrado.", ResponseErrorEnum.NotFound);

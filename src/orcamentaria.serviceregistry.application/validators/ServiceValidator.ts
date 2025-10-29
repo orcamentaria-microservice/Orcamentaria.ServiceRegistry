@@ -12,8 +12,7 @@ class ServiceValidator {
             baseUrl: string().required(),
             state: mixed<StateEnum>()
                     .oneOf(Object.values(StateEnum).filter(v => typeof v === 'number') as StateEnum[])
-                    .required(),
-            endpoints: array().min(1)
+                    .required()
         });
     }
 

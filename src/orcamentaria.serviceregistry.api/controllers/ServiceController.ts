@@ -25,7 +25,7 @@ class ServiceController {
   };
 
   heartbeat = async (req: Request, res: Response) => {
-    const result = await this.service.heartbeat(req);
+    const result = await this.service.heartbeat(req.params.serviceId);
     res.status(200).json(result);
   };
 }

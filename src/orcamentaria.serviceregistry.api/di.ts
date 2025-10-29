@@ -9,6 +9,7 @@ import ServiceScheduler from "../orcamentaria.serviceregistry.application/schedu
 import LogServiceService from "../orcamentaria.serviceregistry.application/services/LogServiceService";
 import LogServiceRepository from "../orcamentaria.serviceregistry.infrastructure/repositories/LogServiceRepository";
 import AuthMiddleware from "../orcamentaria.serviceregistry.infrastructure/midlewares/AuthMidleware";
+import RegisterScheduler from "../orcamentaria.serviceregistry.application/schedulers/RegisterScheduler";
 
 export async function setupContainer() {
   const container = createContainer();
@@ -39,6 +40,7 @@ export async function setupContainer() {
     serviceController: asFunction(({ serviceService }) => new ServiceController(serviceService)).scoped(),
 
     serviceScheduler: asFunction(({ serviceRepository, logServiceService }) => new ServiceScheduler(serviceRepository, logServiceService)).scoped(),
+    registerScheduler: asFunction(({ serviceService }) => new RegisterScheduler(serviceService)).scoped(),
   });
 
   return container;

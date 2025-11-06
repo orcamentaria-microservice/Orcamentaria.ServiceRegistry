@@ -4,7 +4,7 @@ import ResponseError from "./ResponseError";
 class ResponseModel {
     Data: any;
     Success: boolean;
-    SimpleMessage?: string;
+    Message?: string;
     Error?: ResponseError;
 
     constructor(
@@ -13,7 +13,7 @@ class ResponseModel {
         errorType?: ResponseErrorEnum) {
             this.Data = data;
             this.Success = !errorType;
-            this.SimpleMessage = simpleMessage;
+            this.Message = simpleMessage;
             this.Error = errorType ? new ResponseError(errorType) : undefined;
         }
 }

@@ -2,9 +2,16 @@
   "name": "orcamentaria.serviceregistry",
   "version": "1.0.0",
   "main": "index.js",
+  "engines": {
+    "node": ">=24 <25"
+  },
   "scripts": {
-    "start": "ts-node index.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "dev": "ts-node index.ts"
   },
   "author": "Marcelo Nogueira",
   "license": "ISC",
@@ -12,12 +19,18 @@
   "devDependencies": {
     "@types/express": "^5.0.2",
     "@types/jsonwebtoken": "^9.0.9",
-    "@types/node": "^22.15.21",
+    "@types/node": "^24.0.0",
+    "@types/supertest": "^6.0.2",
+    "@types/yup": "^0.29.14",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^9.0.0",
+    "supertest": "^7.0.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "vitest": "^2.0.0"
   },
   "dependencies": {
-    "@types/yup": "^0.29.14",
     "awilix": "^12.0.5",
     "cors": "^2.8.5",
     "dayjs": "^1.11.13",

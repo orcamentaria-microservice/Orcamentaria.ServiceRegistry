@@ -1,0 +1,22 @@
+[
+ {
+  "Description": "URI MongoDB com usuário e senha",
+  "StartLine": 58,
+  "EndLine": 58,
+  "StartColumn": 12,
+  "EndColumn": 43,
+  "Match": "mongodbREDACTED://\u003cusuario\u003e:\u003csenha\u003e@",
+  "Secret": "REDACTED",
+  "File": "README.md",
+  "SymlinkFile": "",
+  "Commit": "720a3483d41d811f0355d7747efb5b05e2349171",
+  "Entropy": 2,
+  "Author": "Marcelo Fernando Alves Nogueira",
+  "Email": "mafealno@gmail.com",
+  "Date": "2025-10-29T03:31:30Z",
+  "Message": "fix",
+  "Tags": [],
+  "RuleID": "mongodb-uri-with-credentials",
+  "Fingerprint": "720a3483d41d811f0355d7747efb5b05e2349171:README.md:mongodb-uri-with-credentials:58"
+ }
+]

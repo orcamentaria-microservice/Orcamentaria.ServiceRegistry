@@ -1,32 +1,40 @@
 import { Request, Response, NextFunction } from "express";
 import ResponseErrorEnum from "../../orcamentaria.serviceregistry.domain/enums/ResponseErrorEnum";
 import ResponseModel from "../../orcamentaria.serviceregistry.domain/models/ResponseModel";
-import  jwt, { JwtPayload } from "jsonwebtoken";
-import fs from 'fs';
-import path from 'path';
+import jwt, { JwtPayload } from "jsonwebtoken";
 
 class AuthMiddleware {
+    private readonly publicKey: string;
 
-    validateToken(req: Request, res: Response, next: NextFunction)  {
-        const token = req.headers["authorization"];
-        if(!token)
-            res.status(ResponseErrorEnum.AccessDenied).send(res.send(new ResponseModel({}, "", ResponseErrorEnum.AccessDenied)));
+    constructor(publicKey: string) {
+        this.publicKey = publicKey;
+    }
+
+    validateToken = (req: Request, res: Response, next: NextFunction): void => {
+        const authHeader = req.headers["authorization"];
+
+        if (!authHeader || !authHeader.startsWith("Bearer ")) {
+            res.status(ResponseErrorEnum.Unauthorized).json(
+                new ResponseModel(null, "Token de serviço ausente ou inválido.", ResponseErrorEnum.Unauthorized)
+            );
+            return;
+        }
+
+        const token = authHeader.slice(7);
 
         try {
-            const publicKey = fs.readFileSync(path.join(process.cwd(), 'public_key_service.pem'), 'utf8');
-
-            const decoded = jwt.verify(token?.replace("Bearer ", "")!, publicKey, {
-              algorithms: ['RS256'],
-              issuer: 'orcamentaria.auth',
-              audience: 'orcamentaria.service',
+            const decoded = jwt.verify(token, this.publicKey, {
+                algorithms: ["RS256"],
+                issuer: "orcamentaria.auth",
+                audience: "orcamentaria.service",
             }) as JwtPayload;
 
             req.params.serviceName = decoded["name"];
-
             next();
-        } catch (error) {
-            res.send(new ResponseModel({}, "", ResponseErrorEnum.AccessDenied));
-            return;
+        } catch {
+            res.status(ResponseErrorEnum.Unauthorized).json(
+                new ResponseModel(null, "Token de serviço ausente ou inválido.", ResponseErrorEnum.Unauthorized)
+            );
         }
     }
 }

@@ -2,19 +2,24 @@ import ResponseErrorEnum from "../enums/ResponseErrorEnum";
 import ResponseError from "./ResponseError";
 
 class ResponseModel {
-    Data: any;
+    Data: unknown;
     Success: boolean;
     Message?: string;
+    Pagination: null = null;
     Error?: ResponseError;
 
     constructor(
-        data?: any,
+        data?: unknown,
         simpleMessage?: string,
-        errorType?: ResponseErrorEnum) {
-            this.Data = data;
+        errorType?: ResponseErrorEnum,
+        messages?: string[]) {
+            this.Data = data ?? null;
             this.Success = !errorType;
             this.Message = simpleMessage;
-            this.Error = errorType ? new ResponseError(errorType) : undefined;
+            this.Pagination = null;
+            this.Error = errorType
+                ? new ResponseError(errorType, messages ?? (simpleMessage ? [simpleMessage] : []))
+                : undefined;
         }
 }
 

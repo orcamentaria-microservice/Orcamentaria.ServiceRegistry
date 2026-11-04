@@ -1,4 +1,6 @@
 import { createContainer, asFunction, asValue, asClass } from "awilix";
+import fs from "fs";
+import path from "path";
 import ServiceRepository from "../orcamentaria.serviceregistry.infrastructure/repositories/ServiceRepository";
 import ServiceController from "./controllers/ServiceController";
 import ServiceService from "../orcamentaria.serviceregistry.application/services/ServiceService";
@@ -21,10 +23,16 @@ export async function setupContainer() {
   await mongoContext.connect();
   const db = mongoContext.getDatabase();
 
+  const publicKey = fs.readFileSync(
+    path.join(process.cwd(), "public_key_service.pem"),
+    "utf8"
+  );
+
   container.register({
     mongoContext: asValue(mongoContext),
     db: asValue(db),
-    
+
+    publicKey: asValue(publicKey),
     authMiddleware: asClass(AuthMiddleware).scoped(),
     
     serviceRepository: asFunction(({ db }) => new ServiceRepository(db)).transient(),

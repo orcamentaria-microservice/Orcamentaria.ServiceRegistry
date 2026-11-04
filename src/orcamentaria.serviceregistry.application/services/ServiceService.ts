@@ -70,24 +70,25 @@ class ServiceService {
         if (services.length === 0)
             return new ResponseModel(null, "Serviço não encontrado.", ResponseErrorEnum.NotFound);
 
-        const endpoint = services[0].endpoints.filter((i: EndpointModel) => i.name == req.params.endpointName)[0];
-
-        if(!endpoint)
-            return new ResponseModel(null, "Endpoint não encontrado.", ResponseErrorEnum.NotFound);
-
-        var t = new ResponseModel(
-            services.map((service: ServiceModel) => {
-                return new ResponseServiceDTO(
+        const results: ResponseServiceDTO[] = [];
+        for (const service of services) {
+            const endpoint = service.endpoints.find((e: EndpointModel) => e.name === req.params.endpointName);
+            if (endpoint) {
+                results.push(new ResponseServiceDTO(
                     service._id!,
                     service.order,
-                    service.name, 
+                    service.name,
                     service.baseUrl,
                     service.state,
                     [endpoint]
-                )
-            }));
+                ));
+            }
+        }
 
-        return t;
+        if (results.length === 0)
+            return new ResponseModel(null, "Endpoint não encontrado.", ResponseErrorEnum.NotFound);
+
+        return new ResponseModel(results);
     }
 
     async createService(dto: CreateServiceDTO) : Promise<ResponseModel> {
@@ -104,11 +105,12 @@ class ServiceService {
         if(!!messageErrorService)
             return new ResponseModel(null, messageErrorService, ResponseErrorEnum.ValidationFailed);
         
-        entity.endpoints.forEach(async endpoint => {
+        for (const endpoint of entity.endpoints) {
             const messageErrorEndpoint = await this._validatorEndpoint.validateBeforeInsert(endpoint);
-            if(messageErrorEndpoint)
+            if (messageErrorEndpoint) {
                 return new ResponseModel(null, messageErrorEndpoint, ResponseErrorEnum.ValidationFailed);
-        })
+            }
+        }
 
         try {
             const exists = await this._repository.getServiceByNameAndBaseUrl(dto.name, dto.baseUrl);

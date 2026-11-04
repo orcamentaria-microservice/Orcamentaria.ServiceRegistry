@@ -38,7 +38,7 @@ class RegisterScheduler {
             .forEach(e => {
                 endpoints.push({
                     name: e.name,
-                    method: HttpMethodEnum[e.method].toString() as any,
+                    method: HttpMethodEnum[e.method] as "GET" | "POST" | "PUT" | "DELETE",
                     route: `${item.route}${e.route.replace(/:([a-zA-Z_][a-zA-Z0-9_]*)/g, "{$1}")}`
                     })
             })
@@ -56,7 +56,7 @@ class RegisterScheduler {
         if(!response.Success)
           process.exit(1);
 
-        return response.Data;
+        return response.Data as string;
       }
 
       async heartbeat(serviceId: string) {

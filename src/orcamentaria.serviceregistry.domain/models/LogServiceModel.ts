@@ -1,4 +1,4 @@
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 import { ObjectId } from "mongodb";
 import LogTypeEnum from "../enums/LogTypeEnum";
 
@@ -7,16 +7,16 @@ class LogServiceModel {
     serviceId: ObjectId;
     serviceName: string;
     type: LogTypeEnum;
-    updateBefore: any;
-    updateAfter: any;
+    updateBefore: unknown;
+    updateAfter: unknown;
     updateAt: Date;
 
     constructor(
         serviceId: ObjectId,
         serviceName: string,
         type: LogTypeEnum,
-        updateBefore: any,
-        updateAfter: any) {
+        updateBefore: unknown,
+        updateAfter: unknown) {
             this.serviceId = serviceId;
             this.serviceName = serviceName;
             this.type = type;

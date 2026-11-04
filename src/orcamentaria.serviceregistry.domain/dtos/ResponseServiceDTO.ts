@@ -8,7 +8,7 @@ class ResponseServiceDTO {
     order: number;
     serviceName: string;
     baseUrl: string;
-    state: any;
+    state: { stateId: StateEnum; stateName: string };
     endpoints: ResponseEndpointDTO[]
 
     constructor(

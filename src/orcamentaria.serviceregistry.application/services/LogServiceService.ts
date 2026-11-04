@@ -17,7 +17,7 @@ class LogServiceService {
     async getLogService() : Promise<ResponseModel> {
         try {
             return new ResponseModel(await this._repository.getLogService());
-        } catch (error) {
+        } catch {
             return new ResponseModel(null, "Erro ao buscar logs.", ResponseErrorEnum.InternalError);
         }
     }
@@ -25,7 +25,7 @@ class LogServiceService {
     async getLogServiceByServiceName(serviceName: string) : Promise<ResponseModel> {
         try {
             return new ResponseModel(await this._repository.getLogServiceByServiceName(serviceName));
-        } catch (error) {
+        } catch {
             return new ResponseModel(null, "Erro ao buscar logs.", ResponseErrorEnum.InternalError);
         }
     }

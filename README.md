@@ -290,6 +290,33 @@ flowchart TD
 
 ---
 
+## ⚙️ Setup local
+
+### Variáveis de ambiente
+
+Copie `.env.example` para `.env` e preencha os valores reais:
+
+```bash
+cp .env.example .env
+```
+
+| Variável | Descrição |
+|---|---|
+| `PORT` | Porta em que o servidor HTTP escutará |
+| `MONGO_URI` | URI de conexão com o MongoDB (incluindo usuário/senha) |
+| `MONGO_DB` | Nome do banco de dados a ser usado |
+| `SELF_URL` | URL base pública deste serviço (usada no auto-registro) |
+| `MAX_LIFE_TIME` | Tempo (ms) sem heartbeat antes de marcar o serviço como DOWN |
+| `BURIAL_TIME` | Tempo (ms) no estado DOWN antes de remover o serviço definitivamente |
+
+O arquivo `.env` **não é versionado** — nunca o commite. Apenas `.env.example` (com nomes, sem valores) fica no repositório.
+
+### Chave pública do Auth Service
+
+O arquivo `public_key_service.pem` contém a **chave pública** do `Orcamentaria.AuthService`, usada para validar os tokens JWT RS256 nas rotas protegidas. Por ser uma chave pública, ela **pode e deve ser versionada** — não é um segredo.
+
+---
+
 ## 📝 Resumo Executivo
 
 O **Orcamentaria.ServiceRegistry** é o serviço de descoberta do ecossistema Orcamentaria, construído em Node.js/TypeScript com Express, MongoDB e Awilix para injeção de dependência. Ele expõe rotas de descoberta públicas (`GET /api/v1/service/:serviceName` e `GET /api/v1/service/:serviceName/:endpointName`) e rotas autenticadas por JWT RS256 para registro (`POST /api/v1/service/register`) e heartbeat (`PUT /api/v1/service/heartbeat/:serviceId`).
